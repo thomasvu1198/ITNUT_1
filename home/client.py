@@ -14,6 +14,7 @@ MEDIA_PATH = '/home/chessie/Documents/ITNUT/ITNUT/home/media'
 
 vidcap = cv2.VideoCapture(0)
 success, image = vidcap.read()
+image = imutils.resize(image, width=320)
 count = 0
 while success:
     cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file
