@@ -1,2 +1,3 @@
 /home/chessie/Documents/ITNUT/ITNUT_1/home/yolov3-coco
-home/yolov3-coco/yolov3.weights 
+/yolov3-coco
+yolov3-coco/**

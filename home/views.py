@@ -10,12 +10,14 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 import base64
+from matplotlib.font_manager import json_dump
 import numpy as np
 from PIL import Image
 import io
 from django.views.decorators.csrf import csrf_exempt
 import json
 import cv2
+
 
 # Create your views here.
 MEDIA_PATH = '/home/chessie/Documents/ITNUT/ITNUT_1/home/media/'
@@ -37,86 +39,86 @@ MEDIA_PATH = '/home/chessie/Documents/ITNUT/ITNUT_1/home/media/'
 
 
 LIST_LABELS = {
-    # 'person': 'Đây là người bạn nhé',
-    'bicycle': 'Đây là cái xe đạp',
-    'car': 'Đây là ô tô nha',
-    'motorbike': 'Đây là xe máy nhé',
-    'aeroplane': 'Đây là máy bay nhé',
-    'bus': 'Đây là xe buýt nhé',
-    'train': 'Đây là tàu hỏa',
-    'truck': 'Đây là xe tải',
-    'boat': 'Đây là thuyền',
-    'traffic light': 'Đây là đèn giao thông',
-    'fire hydrant': 'Đây là trụ nước chữa cháy',
-    'stop sign': 'Đây là cảnh báo dừng lại',
-    'parking meter': 'nơi đỗ xe',
-    'bench': 'đây là ghế dài',
-    'bird': 'đây là chim',
-    'cat': 'đây là mèo',
-    'dog': 'đây là chó',
-    'horse': 'đây là ngựa',
-    'sheep': 'đây là cừu',
-    'cow': 'đây là bò',
-    'elephant': 'đây là voi',
-    'bear': 'đây là gấu',
-    'zebra': 'đây là ngựa vằn',
-    'giraffe': 'đây là hươu cao cổ',
-    'backpack': 'đây là cặp sách',
-    'umbrella': 'đây là cái ô',
-    'handbag': 'đây là túi xách',
-    'tie': 'đây là cà vạt',
-    'suitcase': 'đây là va li',
-    'frisbee': 'đây là đĩa ném',
-    'skis': 'đây là đĩa ván trượt',
-    'snowboard': 'đây là ván trượt tuyết',
-    'sports ball': 'đây là bóng đá',
-    'kite': 'đây là cái diều',
-    'baseball bat': 'đây là mũ bóng chày',
-    'baseball glove': 'đây là găng tay chơi bóng chày',
-    'skateboard': 'đây là ván trượt',
-    'surfboard': 'đây là ván lướt sóng',
-    'tennis racket': 'đây là vợt tennis',
-    'bottle': 'đây là cái bình',
-    'wine glass': 'đây là ly rượu',
-    'cup': 'đây là cái cốc',
-    'fork': 'đây là cái dĩa',
-    'knife': 'đây là con dao',
-    'spoon': 'đây là cái thìa',
-    'bowl': 'đây là cái bát',
-    'banana': 'đây là qủa chuối',
-    'apple': 'đây là quả táo',
-    'sandwich': 'đây là bánh mỳ kẹp',
-    'orange': 'đây là quả cam',
-    'broccoli': 'đây là bông súp lơ',
-    'carrot': 'đây là cà rốt',
-    'hot dog': 'đây là xúc xích',
-    'pizza': 'đây là bánh pi da',
-    'donut': 'đây là bánh vòng ',
-    'cake': 'đây là cái bánh',
-    'chair': 'đây là cái ghế',
-    'sofa': 'đây là ghé sô pha',
-    'pottedplant': 'đây là cây',
-    'bed': 'đây là cái giường',
-    'diningtable': 'đây là bàn ăn',
-    'toilet': 'đây là toi lét',
-    'tvmonitor': 'đây là Ti vi',
-    'laptop': 'đây là máy tính xách tay',
-    'mouse': 'đây là con chuột',
-    'remote': 'đây là cái điều khiển',
-    'keyboard': 'đây là bàn phím',
-    'cell phone': 'đây là điện thoại',
-    'microwave': 'đây là lò vi sóng',
-    'oven': 'đây là lò nướng',
-    'toaster': 'đây là lò nướng bánh mỳ',
-    'sink': 'đây là bồn rửa chén',
-    'refrigerator': 'đây là tủ lạnh',
-    'book': 'đây là quyển sách',
-    'clock': 'đây là đồng hồ',
-    'vase': 'đây là bình hoa',
-    'scissors': 'đây là cái kéo',
-    'teddy bear': 'đây là gấu tét đi',
-    'hair drier': 'đây là mấy sấy tóc',
-    'toothbrush': 'đây là bàn chải đánh răng',
+    0: 'Đây là người bạn nhé',
+    1: 'Đây là cái xe đạp',
+    2: 'Đây là ô tô nha',
+    3: 'Đây là xe máy nhé',
+    4: 'Đây là máy bay nhé',
+    5: 'Đây là xe buýt nhé',
+    6: 'Đây là tàu hỏa',
+    7: 'Đây là xe tải',
+    8: 'Đây là thuyền',
+    9: 'Đây là đèn giao thông',
+    10: 'Đây là trụ nước chữa cháy',
+    11: 'Đây là cảnh báo dừng lại',
+    12: 'nơi đỗ xe',
+    13: 'đây là ghế dài',
+    14: 'đây là chim',
+    15: 'đây là mèo',
+    16: 'đây là chó',
+    17: 'đây là ngựa',
+    18: 'đây là cừu',
+    19: 'đây là bò',
+    20: 'đây là voi',
+    21: 'đây là gấu',
+    22: 'đây là ngựa vằn',
+    23: 'đây là hươu cao cổ',
+    24: 'đây là cặp sách',
+    25: 'đây là cái ô',
+    26: 'đây là túi xách',
+    27: 'đây là cà vạt',
+    28: 'đây là va li',
+    29: 'đây là đĩa ném',
+    30: 'đây là đĩa ván trượt',
+    31: 'đây là ván trượt tuyết',
+    32: 'đây là bóng đá',
+    33: 'đây là cái diều',
+    34: 'đây là mũ bóng chày',
+    35: 'đây là găng tay chơi bóng chày',
+    36: 'đây là ván trượt',
+    37: 'đây là ván lướt sóng',
+    38: 'đây là vợt tennis',
+    39: 'đây là cái bình',
+    40: 'đây là ly rượu',
+    41: 'đây là cái cốc',
+    42: 'đây là cái dĩa',
+    43: 'đây là con dao',
+    44: 'đây là cái thìa',
+    45: 'đây là cái bát',
+    46: 'đây là qủa chuối',
+    47: 'đây là quả táo',
+    48: 'đây là bánh mỳ kẹp',
+    49: 'đây là quả cam',
+    50: 'đây là bông súp lơ',
+    51: 'đây là cà rốt',
+    52: 'đây là xúc xích',
+    53: 'đây là bánh pi da',
+    54: 'đây là bánh vòng ',
+    55: 'đây là cái bánh',
+    56: 'đây là cái ghế',
+    57: 'đây là ghé sô pha',
+    58: 'đây là cây',
+    59: 'đây là cái giường',
+    60: 'đây là bàn ăn',
+    61: 'đây là toi lét',
+    62: 'đây là Ti vi',
+    63: 'đây là máy tính xách tay',
+    64: 'đây là con chuột',
+    65: 'đây là cái điều khiển',
+    66: 'đây là bàn phím',
+    67: 'đây là điện thoại',
+    68: 'đây là lò vi sóng',
+    69: 'đây là lò nướng',
+    70: 'đây là lò nướng bánh mỳ',
+    71: 'đây là bồn rửa chén',
+    72: 'đây là tủ lạnh',
+    73: 'đây là quyển sách',
+    74: 'đây là đồng hồ',
+    75: 'đây là bình hoa',
+    76: 'đây là cái kéo',
+    77: 'đây là gấu tét đi',
+    78: 'đây là mấy sấy tóc',
+    79: 'đây là bàn chải đánh răng',
 }
 last_object_name = ''
 # Ham tra ve output layer
@@ -150,6 +152,7 @@ def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h, classes
 
 
 def detect(image_path):
+    start = time.time()
     image = cv2.imread(image_path)
     Width = image.shape[1]
     Height = image.shape[0]
@@ -171,7 +174,6 @@ def detect(image_path):
     nms_threshold = 0.4
 
     # Thực hiện xác định bằng HOG và SVM
-    start = time.time()
 
     for out in outs:
         for detection in out:
@@ -210,6 +212,12 @@ def saveimage(base64_string):
         f.write(imgdata)
 
 
+def unique(list1):
+    list_set = set(list1)
+    unique_list = (list(list_set))
+    return unique_list
+
+
 class IndexView(View):
     def get(self, request):
         return HttpResponse('hello')
@@ -219,13 +227,19 @@ class IndexView(View):
 class UploadImage(View):
     def post(self, request):
         # get the base64 encoded string
+        response_data = []
         data = request.body.decode('utf-8')
         data = json.loads(str(data))
         im_b64 = (data["image"])
         name = (data["name"])
-        print(name)
         saveimage(im_b64)
         id_labels_detected = detect(
             "/home/chessie/Documents/ITNUT/ITNUT_1/home/media/image.jpg")
-        print(id_labels_detected)
-        return JsonResponse('done', status=200, safe=False)
+        unique_list = unique(id_labels_detected)
+        print(unique_list)
+        # data_json = json.dumps(str(unique_list))
+        for id in unique_list:
+            if id != 0:
+                response_data.append(LIST_LABELS[id])
+        # print(data_json)
+        return JsonResponse(str(unique_list), safe=False, status=200)
