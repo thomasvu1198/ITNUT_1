@@ -28,11 +28,11 @@ while success:
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     payload = json.dumps({"image": im_b64, "name": image_file})
     response = requests.post(api, data=payload, headers=headers)
-    # try:
-    #     data = response.content
-    #     print(data)
-    # except requests.exceptions.RequestException:
-    #     print('err: ', response.text)
+    try:
+        data = response.content
+        print(data)
+    except requests.exceptions.RequestException:
+        print('err: ', response.text)
     count += 1
     time.sleep(4)
 # requests.post(url, files=files)
